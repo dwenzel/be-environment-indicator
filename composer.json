@@ -15,10 +15,10 @@
       "role": "Developer"
     }
   ],
-  "homepage": "https://github.com/dwenzel/be_environment_indicator",
+  "homepage": "https://github.com/dwenzel/be-environment-indicator",
   "support": {
-    "issues": "https://github.com/dwenzel/be_environment_indicator/issues",
-    "source": "https://github.com/dwenzel/be_environment_indicator"
+    "issues": "https://github.com/dwenzel/be-environment-indicator/issues",
+    "source": "https://github.com/dwenzel/be-environment-indicator"
   },
   "require": {
     "php": "^8.1",
