@@ -13,12 +13,13 @@ output.
 
 ## Requirements
 
-| Version | TYPO3 | PHP       |
-|---------|-------|-----------|
-| 1.x     | 11.5  | 8.1 - 8.4 |
-| 0.1.x   | 11.5  | 8.1 - 8.4 |
+| Version | TYPO3      | PHP       |
+|---------|------------|-----------|
+| main    | 11.5, 12.4 | 8.1 - 8.4 |
+| 1.0.x   | 11.5       | 8.1 - 8.4 |
+| 0.1.x   | 11.5       | 8.1 - 8.4 |
 
-Support for TYPO3 12, 13 and 14 is planned. Older TYPO3 versions will be
+Support for TYPO3 13 and 14 is planned. Older TYPO3 versions will be
 dropped where they conflict with newer core APIs.
 
 ## Installation
@@ -90,11 +91,14 @@ vendor/bin/typo3cms cache:flush
 ## How it works
 
 - A backend toolbar item (`EnvironmentToolbarItem`) resolves the environment
-  and renders the label and, for admins, the badge.
-- A small JavaScript module
-  (`Resources/Public/JavaScript/EnvironmentIndicator.js`) moves both next to
-  the site name on the left of the top bar. It runs again after the core has
-  refreshed the top bar.
+  and renders the label and, for admins, the badge. TYPO3 11 registers it in
+  `ext_localconf.php`, TYPO3 12 and later by service autoconfiguration.
+- A small JavaScript module moves both next to the site name on the left of
+  the top bar. It runs again after the core has refreshed the top bar.
+  TYPO3 12 and later load the ES module
+  `Resources/Public/JavaScript/environment-indicator.js` (import map in
+  `Configuration/JavaScriptModules.php`), TYPO3 11 loads the RequireJS module
+  `Resources/Public/JavaScript/EnvironmentIndicator.js`.
 - All styles live in `Resources/Public/Css/indicator.css`. Only the
   environment colour is written inline into the page head, as custom property
   `--be-environment-indicator-colour`.

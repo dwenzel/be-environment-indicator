@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 
@@ -241,14 +242,52 @@ final class EnvironmentToolbarItemTest extends TestCase
     /**
      * @test
      */
-    public function getItemLoadsModuleWhichMovesIndicatorNextToSiteName(): void
+    public function getItemLoadsRequireJsModuleInTypo3Version11(): void
     {
+        if (!method_exists(PageRenderer::class, 'loadRequireJsModule')) {
+            self::markTestSkipped('The installed TYPO3 version does not support RequireJS.');
+        }
         $this->setBackendUser(false);
         $this->pageRenderer->expects(self::once())
             ->method('loadRequireJsModule')
+            ->with(EnvironmentToolbarItem::REQUIREJS_MODULE);
+
+        $this->createSubject('Production', 11)->getItem();
+    }
+
+    /**
+     * @test
+     */
+    public function getItemLoadsJavaScriptModuleInTypo3Version12AndLater(): void
+    {
+        if (!method_exists(PageRenderer::class, 'loadJavaScriptModule')) {
+            self::markTestSkipped('The installed TYPO3 version does not support ES modules.');
+        }
+        $this->setBackendUser(false);
+        $this->pageRenderer->expects(self::once())
+            ->method('loadJavaScriptModule')
             ->with(EnvironmentToolbarItem::JAVASCRIPT_MODULE);
 
-        $this->createSubject('Production')->getItem();
+        $this->createSubject('Production', 12)->getItem();
+    }
+
+    /**
+     * @test
+     */
+    public function javaScriptModulesAreMappedToPublicJavaScriptFolder(): void
+    {
+        $extensionPath = dirname(__DIR__, 4);
+        $configuration = require $extensionPath . '/Configuration/JavaScriptModules.php';
+        $prefix = '@dwenzel/be-environment-indicator/';
+
+        self::assertSame(
+            'EXT:be_environment_indicator/Resources/Public/JavaScript/',
+            $configuration['imports'][$prefix] ?? null
+        );
+        self::assertStringStartsWith($prefix, EnvironmentToolbarItem::JAVASCRIPT_MODULE);
+        self::assertFileExists(
+            $extensionPath . '/Resources/Public/JavaScript/' . substr(EnvironmentToolbarItem::JAVASCRIPT_MODULE, strlen($prefix))
+        );
     }
 
     /**
@@ -280,11 +319,14 @@ final class EnvironmentToolbarItemTest extends TestCase
         $GLOBALS['BE_USER'] = $backendUser;
     }
 
-    private function createSubject(string $context): EnvironmentToolbarItem
+    private function createSubject(string $context, ?int $typo3MajorVersion = null): EnvironmentToolbarItem
     {
-        return new class ($context, new EnvironmentResolver(), $this->extensionConfiguration, $this->pageRenderer) extends EnvironmentToolbarItem {
+        $typo3MajorVersion ??= (new Typo3Version())->getMajorVersion();
+
+        return new class ($context, $typo3MajorVersion, new EnvironmentResolver(), $this->extensionConfiguration, $this->pageRenderer) extends EnvironmentToolbarItem {
             public function __construct(
                 private readonly string $context,
+                private readonly int $typo3MajorVersion,
                 EnvironmentResolver $environmentResolver,
                 ExtensionConfiguration $extensionConfiguration,
                 PageRenderer $pageRenderer
@@ -295,6 +337,11 @@ final class EnvironmentToolbarItemTest extends TestCase
             protected function getApplicationContext(): string
             {
                 return $this->context;
+            }
+
+            protected function getTypo3MajorVersion(): int
+            {
+                return $this->typo3MajorVersion;
             }
         };
     }

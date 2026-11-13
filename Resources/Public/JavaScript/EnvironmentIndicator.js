@@ -7,6 +7,8 @@
  */
 
 /**
+ * RequireJS module for TYPO3 11.
+ *
  * Moves the environment indicator from the toolbar (right) next to the
  * site name in the top bar (left). Runs again after the core refreshed
  * the top bar ("t3-topbar-update" on the scaffold header).
