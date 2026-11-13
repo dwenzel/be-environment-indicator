@@ -18,6 +18,7 @@ use TYPO3\CMS\Backend\Toolbar\ToolbarItemInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment as CoreEnvironment;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 
@@ -29,7 +30,14 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
 {
     public const EXTENSION_KEY = 'be_environment_indicator';
     public const STYLESHEET = 'EXT:be_environment_indicator/Resources/Public/Css/indicator.css';
-    public const JAVASCRIPT_MODULE = 'TYPO3/CMS/BeEnvironmentIndicator/EnvironmentIndicator';
+    /**
+     * ES module, TYPO3 12 and later (see Configuration/JavaScriptModules.php)
+     */
+    public const JAVASCRIPT_MODULE = '@dwenzel/be-environment-indicator/environment-indicator.js';
+    /**
+     * RequireJS module, TYPO3 11
+     */
+    public const REQUIREJS_MODULE = 'TYPO3/CMS/BeEnvironmentIndicator/EnvironmentIndicator';
     private const LLL = 'LLL:EXT:be_environment_indicator/Resources/Private/Language/locallang.xlf:';
 
     private ?Environment $environment = null;
@@ -56,7 +64,7 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
             $this->buildCss($environment->getColour())
         );
         $this->pageRenderer->addCssFile(self::STYLESHEET);
-        $this->pageRenderer->loadRequireJsModule(self::JAVASCRIPT_MODULE);
+        $this->loadJavaScript();
 
         $title = str_replace('%s', $environment->getContext(), $this->translate('context.title', 'Application context: %s'));
         $html = '<span class="be-environment-indicator" title="' . $this->escape($title) . '">'
@@ -117,6 +125,20 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
     protected function buildCss(string $colour): string
     {
         return ':root { --be-environment-indicator-colour: ' . $colour . '; }';
+    }
+
+    protected function loadJavaScript(): void
+    {
+        if ($this->getTypo3MajorVersion() >= 12) {
+            $this->pageRenderer->loadJavaScriptModule(self::JAVASCRIPT_MODULE);
+            return;
+        }
+        $this->pageRenderer->loadRequireJsModule(self::REQUIREJS_MODULE);
+    }
+
+    protected function getTypo3MajorVersion(): int
+    {
+        return (new Typo3Version())->getMajorVersion();
     }
 
     protected function getApplicationContext(): string

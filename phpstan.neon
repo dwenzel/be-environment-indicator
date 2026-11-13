@@ -3,3 +3,10 @@ parameters:
 	paths:
 		- Classes
 		- Tests
+	ignoreErrors:
+		# Depending on the installed TYPO3 version, only one of both methods exists.
+		# EnvironmentToolbarItem::loadJavaScript() calls the right one.
+		-
+			message: '#^Call to an undefined method TYPO3\\CMS\\Core\\Page\\PageRenderer::(loadJavaScriptModule|loadRequireJsModule)\(\)\.$#'
+			path: Classes/Backend/ToolbarItems/EnvironmentToolbarItem.php
+			reportUnmatched: false
