@@ -1,0 +1,69 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, 'feature/**', 'support/**' ]
+  pull_request:
+
+jobs:
+  php-cs-fixer:
+    name: PHP-CS-Fixer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, intl, zip, json, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Check coding standards
+        run: |
+          composer install --no-progress
+          composer lint:php
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, intl, zip, json, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Run PHPStan
+        run: |
+          composer install --no-progress
+          composer sca:php
+
+  editorconfig:
+    name: EditorConfig
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+
+      - name: Check editorconfig rules
+        run: |
+          composer install --no-progress
+          composer lint:editorconfig

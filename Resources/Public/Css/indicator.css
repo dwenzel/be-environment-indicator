@@ -1,0 +1,49 @@
+/*
+ * This file is part of the TYPO3 extension "be_environment_indicator".
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ */
+
+/*
+ * The environment colour is set as custom property
+ * --be-environment-indicator-colour by EnvironmentToolbarItem (inline).
+ */
+.scaffold-header .scaffold-topbar,
+.scaffold-header .topbar-button,
+.scaffold-header .toolbar,
+.scaffold-toolbar-expanded .scaffold-header .scaffold-toolbar .toolbar,
+.scaffold-toolbar-expanded .scaffold-header .topbar-button-toolbar {
+    background-color: var(--be-environment-indicator-colour);
+}
+.scaffold-header .topbar-header-site:before {
+    background: var(--be-environment-indicator-colour);
+}
+.scaffold-header .topbar-header-site:after {
+    background: linear-gradient(to right, transparent 0, var(--be-environment-indicator-colour) 100%);
+}
+.toolbar-item-be-environment-indicator {
+    display: none !important;
+}
+.be-environment-indicator {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 1em;
+    color: #fff;
+    line-height: 1.2em;
+    white-space: nowrap;
+}
+.be-environment-indicator-label {
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.be-environment-indicator-admin {
+    display: inline-block;
+    margin-left: .5em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: #f97316;
+    color: #fff;
+    letter-spacing: .05em;
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" target-language="de" datatype="plaintext" original="EXT:be_environment_indicator/Resources/Private/Language/locallang.xlf" date="2026-11-13T00:00:00Z" product-name="be_environment_indicator">
+		<header/>
+		<body>
+			<trans-unit id="admin" resname="admin">
+				<source>ADMIN</source>
+				<target>ADMIN</target>
+			</trans-unit>
+			<trans-unit id="admin.title" resname="admin.title">
+				<source>You are logged in with administrator privileges</source>
+				<target>Sie sind mit Administratorrechten angemeldet</target>
+			</trans-unit>
+			<trans-unit id="context.title" resname="context.title">
+				<source>Application context: %s</source>
+				<target>Anwendungskontext: %s</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

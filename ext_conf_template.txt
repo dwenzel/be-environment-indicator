@@ -1,0 +1,30 @@
+# cat=production/production/10; type=string; label=Production - context pattern(s): Comma-separated application contexts. A pattern matches the context itself and all its sub contexts (e.g. "Production" matches "Production/Live"). The most specific match wins.
+production.context = Production
+# cat=production/production/20; type=string; label=Production - label
+production.label = Production
+# cat=production/production/30; type=color; label=Production - colour: Hex colour (#rgb or #rrggbb)
+production.colour = #b91c1c
+
+# cat=staging/staging/10; type=string; label=Staging - context pattern(s): Comma-separated application contexts.
+staging.context = Production/Staging
+# cat=staging/staging/20; type=string; label=Staging - label
+staging.label = Staging
+# cat=staging/staging/30; type=color; label=Staging - colour: Hex colour (#rgb or #rrggbb)
+staging.colour = #c2410c
+
+# cat=development/development/10; type=string; label=Development - context pattern(s): Comma-separated application contexts.
+development.context = Development
+# cat=development/development/20; type=string; label=Development - label
+development.label = Development
+# cat=development/development/30; type=color; label=Development - colour: Hex colour (#rgb or #rrggbb)
+development.colour = #15803d
+
+# cat=testing/testing/10; type=string; label=Testing - context pattern(s): Comma-separated application contexts.
+testing.context = Testing
+# cat=testing/testing/20; type=string; label=Testing - label
+testing.label = Testing
+# cat=testing/testing/30; type=color; label=Testing - colour: Hex colour (#rgb or #rrggbb)
+testing.colour = #1d4ed8
+
+# cat=fallback/fallback/10; type=color; label=Neutral colour: Used for contexts without a matching pattern. The label then shows the raw context.
+neutralColour = #4b5563

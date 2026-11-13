@@ -1,0 +1,8 @@
+/.build/
+/composer.lock
+/var/
+.php-cs-fixer.cache
+.phpunit.result.cache
+.DS_Store
+.idea/
+.claude/

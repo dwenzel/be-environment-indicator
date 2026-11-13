@@ -1,0 +1,38 @@
+name: TYPO3 Compatibility
+
+on:
+  push:
+    branches: [ main, 'feature/**', 'support/**' ]
+  pull_request:
+
+jobs:
+  typo3-compatibility:
+    name: TYPO3 ${{ matrix.typo3-version }} compatibility check
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        typo3-version: ['^11.5']
+        php-version: ['8.2']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, intl, zip, json, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies with TYPO3 ${{ matrix.typo3-version }}
+        run: |
+          composer require typo3/cms-core:${{ matrix.typo3-version }} typo3/cms-backend:${{ matrix.typo3-version }} --no-update
+          composer update --no-progress --prefer-dist
+          git checkout composer.json
+
+      - name: Run TYPO3 Rector compatibility check
+        run: composer migration:rector -- --dry-run

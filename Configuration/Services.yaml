@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  DWenzel\BeEnvironmentIndicator\:
+    resource: '../Classes/*'
+
+  DWenzel\BeEnvironmentIndicator\Backend\ToolbarItems\EnvironmentToolbarItem:
+    public: true
