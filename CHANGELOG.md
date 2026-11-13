@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-11-13)
 
 * Colour the backend top bar per environment (application context)
 * Show the environment label next to the site name for all backend users
