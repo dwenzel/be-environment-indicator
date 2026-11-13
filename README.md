@@ -15,6 +15,7 @@ output.
 
 | Version | TYPO3 | PHP       |
 |---------|-------|-----------|
+| 1.x     | 11.5  | 8.1 - 8.4 |
 | 0.1.x   | 11.5  | 8.1 - 8.4 |
 
 Support for TYPO3 12, 13 and 14 is planned. Older TYPO3 versions will be
