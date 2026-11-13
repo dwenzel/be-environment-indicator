@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 (2026-11-13)
 
 * Support for TYPO3 12.4
 * Support for TYPO3 13.4
