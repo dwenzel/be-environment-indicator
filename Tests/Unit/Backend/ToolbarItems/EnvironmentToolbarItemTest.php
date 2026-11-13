@@ -229,14 +229,49 @@ final class EnvironmentToolbarItemTest extends TestCase
     /**
      * @test
      */
-    public function getItemAddsStylesheet(): void
+    public function getItemAddsStylesheetsForTypo3Version11And12(): void
+    {
+        $this->assertStylesheetsAdded(11, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V11);
+        $this->assertStylesheetsAdded(12, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V11);
+    }
+
+    /**
+     * @test
+     */
+    public function getItemAddsStylesheetsForTypo3Version13AndLater(): void
+    {
+        $this->assertStylesheetsAdded(13, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V13);
+        $this->assertStylesheetsAdded(14, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V13);
+    }
+
+    /**
+     * @test
+     */
+    public function stylesheetsExist(): void
+    {
+        $extensionPath = dirname(__DIR__, 4);
+        $prefix = 'EXT:be_environment_indicator/';
+        foreach ([EnvironmentToolbarItem::STYLESHEET, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V11, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V13] as $stylesheet) {
+            self::assertStringStartsWith($prefix, $stylesheet);
+            self::assertFileExists($extensionPath . '/' . substr($stylesheet, strlen($prefix)));
+        }
+    }
+
+    private function assertStylesheetsAdded(int $typo3MajorVersion, string $topbarStylesheet): void
     {
         $this->setBackendUser(false);
-        $this->pageRenderer->expects(self::once())
-            ->method('addCssFile')
-            ->with(EnvironmentToolbarItem::STYLESHEET);
+        $pageRenderer = $this->createMock(PageRenderer::class);
+        $addedFiles = [];
+        $pageRenderer->method('addCssFile')->willReturnCallback(
+            static function (string $file) use (&$addedFiles): void {
+                $addedFiles[] = $file;
+            }
+        );
+        $this->pageRenderer = $pageRenderer;
 
-        $this->createSubject('Production')->getItem();
+        $this->createSubject('Production', $typo3MajorVersion)->getItem();
+
+        self::assertSame([EnvironmentToolbarItem::STYLESHEET, $topbarStylesheet], $addedFiles);
     }
 
     /**
@@ -342,6 +377,18 @@ final class EnvironmentToolbarItemTest extends TestCase
             protected function getTypo3MajorVersion(): int
             {
                 return $this->typo3MajorVersion;
+            }
+
+            /**
+             * Skips loading if the installed TYPO3 version lacks the method
+             * for the simulated version.
+             */
+            protected function loadJavaScript(): void
+            {
+                $method = $this->typo3MajorVersion >= 12 ? 'loadJavaScriptModule' : 'loadRequireJsModule';
+                if (method_exists(PageRenderer::class, $method)) {
+                    parent::loadJavaScript();
+                }
             }
         };
     }

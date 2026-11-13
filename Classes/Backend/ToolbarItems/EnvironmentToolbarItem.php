@@ -31,6 +31,14 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
     public const EXTENSION_KEY = 'be_environment_indicator';
     public const STYLESHEET = 'EXT:be_environment_indicator/Resources/Public/Css/indicator.css';
     /**
+     * Top bar colour, TYPO3 11 and 12
+     */
+    public const TOPBAR_STYLESHEET_V11 = 'EXT:be_environment_indicator/Resources/Public/Css/topbar-v11.css';
+    /**
+     * Top bar colour, TYPO3 13 and later
+     */
+    public const TOPBAR_STYLESHEET_V13 = 'EXT:be_environment_indicator/Resources/Public/Css/topbar-v13.css';
+    /**
      * ES module, TYPO3 12 and later (see Configuration/JavaScriptModules.php)
      */
     public const JAVASCRIPT_MODULE = '@dwenzel/be-environment-indicator/environment-indicator.js';
@@ -64,6 +72,7 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
             $this->buildCss($environment->getColour())
         );
         $this->pageRenderer->addCssFile(self::STYLESHEET);
+        $this->pageRenderer->addCssFile($this->getTopbarStylesheet());
         $this->loadJavaScript();
 
         $title = str_replace('%s', $environment->getContext(), $this->translate('context.title', 'Application context: %s'));
@@ -119,12 +128,17 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
 
     /**
      * Only the environment colour is set inline; all rules live in
-     * Resources/Public/Css/indicator.css. The colour must already be
+     * Resources/Public/Css/. The colour must already be
      * validated (see EnvironmentResolver).
      */
     protected function buildCss(string $colour): string
     {
         return ':root { --be-environment-indicator-colour: ' . $colour . '; }';
+    }
+
+    protected function getTopbarStylesheet(): string
+    {
+        return $this->getTypo3MajorVersion() >= 13 ? self::TOPBAR_STYLESHEET_V13 : self::TOPBAR_STYLESHEET_V11;
     }
 
     protected function loadJavaScript(): void
