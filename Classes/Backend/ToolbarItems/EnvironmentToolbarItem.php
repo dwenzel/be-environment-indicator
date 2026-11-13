@@ -166,12 +166,17 @@ class EnvironmentToolbarItem implements ToolbarItemInterface
     protected function getConfiguration(): array
     {
         try {
-            $configuration = $this->extensionConfiguration->get(self::EXTENSION_KEY);
+            $configuration = $this->readExtensionConfiguration();
         } catch (\Exception $exception) {
             return [];
         }
 
         return is_array($configuration) ? $configuration : [];
+    }
+
+    protected function readExtensionConfiguration(): mixed
+    {
+        return $this->extensionConfiguration->get(self::EXTENSION_KEY);
     }
 
     protected function isAdmin(): bool

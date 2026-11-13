@@ -13,14 +13,14 @@ output.
 
 ## Requirements
 
-| Version | TYPO3            | PHP                         |
-|---------|------------------|-----------------------------|
-| main    | 11.5, 12.4, 13.4 | 8.1 - 8.4 (13.4: 8.2 - 8.4) |
-| 1.0.x   | 11.5             | 8.1 - 8.4                   |
-| 0.1.x   | 11.5             | 8.1 - 8.4                   |
+| Version | TYPO3                  | PHP                                  |
+|---------|------------------------|--------------------------------------|
+| main    | 11.5, 12.4, 13.4, 14.3 | 8.1 - 8.4 (13.4 and 14.3: 8.2 - 8.4) |
+| 1.0.x   | 11.5                   | 8.1 - 8.4                            |
+| 0.1.x   | 11.5                   | 8.1 - 8.4                            |
 
-Support for TYPO3 14 is planned. Older TYPO3 versions will be
-dropped where they conflict with newer core APIs.
+Older TYPO3 versions will be dropped where they conflict with newer core
+APIs.
 
 ## Installation
 
