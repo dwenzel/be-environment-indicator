@@ -6,12 +6,13 @@ This file lives in `.github/workflows/`, not in `.github/`: GitHub shows a
 
 ## Workflows
 
-* Tests (`tests.yml`): unit tests with TYPO3 11.5 and PHP 8.1 to 8.4
+* Tests (`tests.yml`): unit tests with TYPO3 11.5, 12.4, 13.4 and 14.3 and
+  PHP 8.1 to 8.4 (TYPO3 13.4 and 14.3: PHP 8.2 to 8.4)
 * Code Quality (`code-quality.yml`): PHP-CS-Fixer, PHPStan, EditorConfig
 * Composer Validation (`composer-validate.yml`): `composer validate`,
   normalized `composer.json`
 * TYPO3 Compatibility (`typo3-compatibility.yml`): TYPO3 Rector (dry run)
-  with TYPO3 11.5
+  with each supported TYPO3 version
 * Publish to TER (`publish.yml`): on version tags (`X.Y.Z`) or started
   manually for an existing tag; checks the tag against `ext_emconf.php` and
   uploads the version with [tailor](https://github.com/TYPO3/tailor). Needs
@@ -27,12 +28,23 @@ Packagist is updated by its GitHub integration, not by a workflow.
 
 ## Supported TYPO3 versions
 
-The matrices currently contain TYPO3 11.5 only. Newer versions are added to
-`tests.yml` and `typo3-compatibility.yml` as support for them is
-implemented.
+The matrices in `tests.yml` and `typo3-compatibility.yml` contain TYPO3
+11.5, 12.4, 13.4 and 14.3. Code Quality runs with the newest TYPO3 version
+that Composer resolves.
 
 The same checks run locally with `composer lint`, `composer sca`,
-`composer test` and `composer migration:rector -- --dry-run`.
+`composer test` and `composer migration:rector -- --dry-run`. To run them
+against a specific TYPO3 version:
+
+```bash
+composer require typo3/cms-core:^13.4 typo3/cms-backend:^13.4 --no-update
+composer update -W
+git checkout composer.json
+```
+
+The development tools allow two major versions each (PHPStan 1 and 2,
+saschaegerer/phpstan-typo3 1 to 3, ssch/typo3-rector 2 and 3), because no
+single version supports TYPO3 11 and 14.
 
 ## Security advisories
 

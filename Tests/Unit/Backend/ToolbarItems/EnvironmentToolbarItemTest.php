@@ -31,9 +31,12 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 final class EnvironmentToolbarItemTest extends TestCase
 {
     /**
-     * @var ExtensionConfiguration&MockObject
+     * A real instance: ExtensionConfiguration is readonly in TYPO3 14 and
+     * cannot be mocked. The configuration is set in TYPO3_CONF_VARS instead.
      */
     private ExtensionConfiguration $extensionConfiguration;
+
+    private ?\Exception $configurationException = null;
 
     /**
      * @var PageRenderer&MockObject
@@ -44,7 +47,8 @@ final class EnvironmentToolbarItemTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extensionConfiguration = $this->createMock(ExtensionConfiguration::class);
+        $this->extensionConfiguration = new ExtensionConfiguration();
+        $this->setExtensionConfiguration([]);
         $this->pageRenderer = $this->createMock(PageRenderer::class);
         $this->pageRenderer->method('addCssInlineBlock')->willReturnCallback(
             function (string $name, string $block): void {
@@ -56,7 +60,7 @@ final class EnvironmentToolbarItemTest extends TestCase
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['BE_USER'], $GLOBALS['LANG']);
+        unset($GLOBALS['BE_USER'], $GLOBALS['LANG'], $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][EnvironmentToolbarItem::EXTENSION_KEY]);
     }
 
     /**
@@ -83,7 +87,6 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemShowsDevelopmentLabelWithoutAdminMarkerForEditor(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willReturn([]);
 
         $item = $this->createSubject('Development/Local')->getItem();
 
@@ -99,7 +102,6 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemShowsStagingLabelWithAdminMarkerForAdmin(): void
     {
         $this->setBackendUser(true);
-        $this->extensionConfiguration->method('get')->willReturn([]);
 
         $item = $this->createSubject('Production/Staging')->getItem();
 
@@ -115,7 +117,6 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemShowsProductionLabelAndColour(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willReturn([]);
 
         $item = $this->createSubject('Production')->getItem();
 
@@ -129,7 +130,6 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemShowsRawContextWithNeutralColourForUnknownContext(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willReturn([]);
 
         $subject = $this->createSubject('Foo/Bar');
         $item = $subject->getItem();
@@ -145,7 +145,7 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemEscapesConfiguredLabel(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willReturn([
+        $this->setExtensionConfiguration([
             'production' => ['label' => '<script>alert(1)</script>'],
         ]);
 
@@ -161,7 +161,7 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemDoesNotOutputInvalidColour(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willReturn([
+        $this->setExtensionConfiguration([
             'production' => ['colour' => 'red;}body{display:none'],
         ]);
 
@@ -177,7 +177,7 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemFollowsChangedConfiguration(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willReturn([
+        $this->setExtensionConfiguration([
             'development' => ['label' => 'Local', 'colour' => '#123456'],
         ]);
 
@@ -193,9 +193,7 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemUsesDefaultsIfExtensionIsNotConfigured(): void
     {
         $this->setBackendUser(false);
-        $this->extensionConfiguration->method('get')->willThrowException(
-            new ExtensionConfigurationExtensionNotConfiguredException('not configured', 1)
-        );
+        $this->configurationException = new ExtensionConfigurationExtensionNotConfiguredException('not configured', 1);
 
         $item = $this->createSubject('Testing/Foo')->getItem();
 
@@ -209,7 +207,6 @@ final class EnvironmentToolbarItemTest extends TestCase
     public function getItemUsesTranslatedLabelsForAdmin(): void
     {
         $this->setBackendUser(true);
-        $this->extensionConfiguration->method('get')->willReturn([]);
         $lll = 'LLL:EXT:be_environment_indicator/Resources/Private/Language/locallang.xlf:';
         $languageService = $this->createMock(LanguageService::class);
         $languageService->method('sL')->willReturnMap([
@@ -229,14 +226,49 @@ final class EnvironmentToolbarItemTest extends TestCase
     /**
      * @test
      */
-    public function getItemAddsStylesheet(): void
+    public function getItemAddsStylesheetsForTypo3Version11And12(): void
+    {
+        $this->assertStylesheetsAdded(11, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V11);
+        $this->assertStylesheetsAdded(12, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V11);
+    }
+
+    /**
+     * @test
+     */
+    public function getItemAddsStylesheetsForTypo3Version13AndLater(): void
+    {
+        $this->assertStylesheetsAdded(13, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V13);
+        $this->assertStylesheetsAdded(14, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V13);
+    }
+
+    /**
+     * @test
+     */
+    public function stylesheetsExist(): void
+    {
+        $extensionPath = dirname(__DIR__, 4);
+        $prefix = 'EXT:be_environment_indicator/';
+        foreach ([EnvironmentToolbarItem::STYLESHEET, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V11, EnvironmentToolbarItem::TOPBAR_STYLESHEET_V13] as $stylesheet) {
+            self::assertStringStartsWith($prefix, $stylesheet);
+            self::assertFileExists($extensionPath . '/' . substr($stylesheet, strlen($prefix)));
+        }
+    }
+
+    private function assertStylesheetsAdded(int $typo3MajorVersion, string $topbarStylesheet): void
     {
         $this->setBackendUser(false);
-        $this->pageRenderer->expects(self::once())
-            ->method('addCssFile')
-            ->with(EnvironmentToolbarItem::STYLESHEET);
+        $pageRenderer = $this->createMock(PageRenderer::class);
+        $addedFiles = [];
+        $pageRenderer->method('addCssFile')->willReturnCallback(
+            static function (string $file) use (&$addedFiles): void {
+                $addedFiles[] = $file;
+            }
+        );
+        $this->pageRenderer = $pageRenderer;
 
-        $this->createSubject('Production')->getItem();
+        $this->createSubject('Production', $typo3MajorVersion)->getItem();
+
+        self::assertSame([EnvironmentToolbarItem::STYLESHEET, $topbarStylesheet], $addedFiles);
     }
 
     /**
@@ -244,7 +276,7 @@ final class EnvironmentToolbarItemTest extends TestCase
      */
     public function getItemLoadsRequireJsModuleInTypo3Version11(): void
     {
-        if (!method_exists(PageRenderer::class, 'loadRequireJsModule')) {
+        if (!self::pageRendererHasMethod('loadRequireJsModule')) {
             self::markTestSkipped('The installed TYPO3 version does not support RequireJS.');
         }
         $this->setBackendUser(false);
@@ -260,7 +292,7 @@ final class EnvironmentToolbarItemTest extends TestCase
      */
     public function getItemLoadsJavaScriptModuleInTypo3Version12AndLater(): void
     {
-        if (!method_exists(PageRenderer::class, 'loadJavaScriptModule')) {
+        if (!self::pageRendererHasMethod('loadJavaScriptModule')) {
             self::markTestSkipped('The installed TYPO3 version does not support ES modules.');
         }
         $this->setBackendUser(false);
@@ -312,6 +344,22 @@ final class EnvironmentToolbarItemTest extends TestCase
         self::assertSame('', $subject->getDropDown());
     }
 
+    /**
+     * Depends on the installed TYPO3 version.
+     */
+    private static function pageRendererHasMethod(string $method): bool
+    {
+        return method_exists(PageRenderer::class, $method);
+    }
+
+    /**
+     * @param array<string, mixed> $configuration
+     */
+    private function setExtensionConfiguration(array $configuration): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][EnvironmentToolbarItem::EXTENSION_KEY] = $configuration;
+    }
+
     private function setBackendUser(bool $isAdmin): void
     {
         $backendUser = $this->createMock(BackendUserAuthentication::class);
@@ -323,10 +371,11 @@ final class EnvironmentToolbarItemTest extends TestCase
     {
         $typo3MajorVersion ??= (new Typo3Version())->getMajorVersion();
 
-        return new class ($context, $typo3MajorVersion, new EnvironmentResolver(), $this->extensionConfiguration, $this->pageRenderer) extends EnvironmentToolbarItem {
+        return new class ($context, $typo3MajorVersion, $this->configurationException, new EnvironmentResolver(), $this->extensionConfiguration, $this->pageRenderer) extends EnvironmentToolbarItem {
             public function __construct(
                 private readonly string $context,
                 private readonly int $typo3MajorVersion,
+                private readonly ?\Exception $configurationException,
                 EnvironmentResolver $environmentResolver,
                 ExtensionConfiguration $extensionConfiguration,
                 PageRenderer $pageRenderer
@@ -342,6 +391,27 @@ final class EnvironmentToolbarItemTest extends TestCase
             protected function getTypo3MajorVersion(): int
             {
                 return $this->typo3MajorVersion;
+            }
+
+            protected function readExtensionConfiguration(): mixed
+            {
+                if ($this->configurationException !== null) {
+                    throw $this->configurationException;
+                }
+
+                return parent::readExtensionConfiguration();
+            }
+
+            /**
+             * Skips loading if the installed TYPO3 version lacks the method
+             * for the simulated version.
+             */
+            protected function loadJavaScript(): void
+            {
+                $method = $this->typo3MajorVersion >= 12 ? 'loadJavaScriptModule' : 'loadRequireJsModule';
+                if (method_exists(PageRenderer::class, $method)) {
+                    parent::loadJavaScript();
+                }
             }
         };
     }

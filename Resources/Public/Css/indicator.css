@@ -7,22 +7,9 @@
  */
 
 /*
- * The environment colour is set as custom property
- * --be-environment-indicator-colour by EnvironmentToolbarItem (inline).
+ * Label and badge, all TYPO3 versions. The top bar colour is set in
+ * topbar-v11.css (TYPO3 11 and 12) or topbar-v13.css (TYPO3 13 and later).
  */
-.scaffold-header .scaffold-topbar,
-.scaffold-header .topbar-button,
-.scaffold-header .toolbar,
-.scaffold-toolbar-expanded .scaffold-header .scaffold-toolbar .toolbar,
-.scaffold-toolbar-expanded .scaffold-header .topbar-button-toolbar {
-    background-color: var(--be-environment-indicator-colour);
-}
-.scaffold-header .topbar-header-site:before {
-    background: var(--be-environment-indicator-colour);
-}
-.scaffold-header .topbar-header-site:after {
-    background: linear-gradient(to right, transparent 0, var(--be-environment-indicator-colour) 100%);
-}
 .toolbar-item-be-environment-indicator {
     display: none !important;
 }

@@ -13,14 +13,14 @@ output.
 
 ## Requirements
 
-| Version | TYPO3      | PHP       |
-|---------|------------|-----------|
-| main    | 11.5, 12.4 | 8.1 - 8.4 |
-| 1.0.x   | 11.5       | 8.1 - 8.4 |
-| 0.1.x   | 11.5       | 8.1 - 8.4 |
+| Version | TYPO3                  | PHP                                  |
+|---------|------------------------|--------------------------------------|
+| main    | 11.5, 12.4, 13.4, 14.3 | 8.1 - 8.4 (13.4 and 14.3: 8.2 - 8.4) |
+| 1.0.x   | 11.5                   | 8.1 - 8.4                            |
+| 0.1.x   | 11.5                   | 8.1 - 8.4                            |
 
-Support for TYPO3 13 and 14 is planned. Older TYPO3 versions will be
-dropped where they conflict with newer core APIs.
+Older TYPO3 versions will be dropped where they conflict with newer core
+APIs.
 
 ## Installation
 
@@ -99,8 +99,12 @@ vendor/bin/typo3cms cache:flush
   `Resources/Public/JavaScript/environment-indicator.js` (import map in
   `Configuration/JavaScriptModules.php`), TYPO3 11 loads the RequireJS module
   `Resources/Public/JavaScript/EnvironmentIndicator.js`.
-- All styles live in `Resources/Public/Css/indicator.css`. Only the
-  environment colour is written inline into the page head, as custom property
+- All styles live in `Resources/Public/Css/`: `indicator.css` for label and
+  badge, `topbar-v11.css` (TYPO3 11 and 12) or `topbar-v13.css` (TYPO3 13 and
+  later) for the top bar colour. In TYPO3 13 and later the core's header
+  colour variables are overridden and the header uses the dark colour scheme,
+  independent of the backend theme. Only the environment colour is written
+  inline into the page head, as custom property
   `--be-environment-indicator-colour`.
 - If the JavaScript module cannot be loaded, the top bar is still coloured,
   but label and badge are not shown.

@@ -17,7 +17,8 @@ const movedClass = 'be-environment-indicator-moved';
 
 function moveIndicator() {
   const indicator = document.querySelector('.toolbar-item-be-environment-indicator .be-environment-indicator');
-  const site = document.querySelector('.scaffold-header .topbar-header-site');
+  // TYPO3 12: .topbar-header-site, TYPO3 13 and later: .topbar-site-container
+  const site = document.querySelector('.scaffold-header .topbar-header-site, .scaffold-header .topbar-site-container');
   if (indicator === null || site === null) {
     return;
   }
