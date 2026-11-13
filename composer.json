@@ -54,6 +54,16 @@
       "typo3/cms-composer-installers": true
     },
     "bin-dir": ".build/bin",
+    "policy": {
+      "advisories": {
+        "ignore": [
+          "enshrined/svg-sanitize",
+          "typo3/cms-backend",
+          "typo3/cms-core",
+          "typo3/cms-recordlist"
+        ]
+      }
+    },
     "sort-packages": true,
     "vendor-dir": ".build/vendor"
   },

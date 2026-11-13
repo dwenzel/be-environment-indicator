@@ -33,3 +33,12 @@ implemented.
 
 The same checks run locally with `composer lint`, `composer sca`,
 `composer test` and `composer migration:rector -- --dry-run`.
+
+## Security advisories
+
+All public TYPO3 11.5 releases on Packagist are affected by security
+advisories (fixed releases are only available via ELTS). Composer 2.9+
+refuses to install them by default, so `composer.json` ignores the advisories
+for the affected core packages (`config.policy.advisories.ignore`). This only
+affects the development setup of this package, not projects requiring it.
+Remove the entries once TYPO3 11.5 support is dropped.
