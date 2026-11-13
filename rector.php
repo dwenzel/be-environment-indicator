@@ -19,10 +19,6 @@ return RectorConfig::configure()
     ->withPHPStanConfigs([
         Typo3Option::PHPSTAN_FOR_RECTOR_PATH,
     ])
-    ->withPhpVersion(PhpVersion::PHP_81)
-    ->withImportNames(importShortClasses: false, removeUnusedImports: true)
-    ->withSkip([
-        Rector\PostRector\Rector\NameImportingPostRector::class => [
-            __DIR__ . '/ext_localconf.php',
-        ],
-    ]);
+    // No name importing: imports are handled by PHP-CS-Fixer, and Rector 2
+    // cannot exclude ext_localconf.php from it.
+    ->withPhpVersion(PhpVersion::PHP_81);

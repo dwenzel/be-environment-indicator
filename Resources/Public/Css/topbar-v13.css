@@ -14,9 +14,12 @@
  * dark colour scheme, as in the core's "classic" theme, so that light text and
  * icons stay readable on the environment colour.
  */
+/* --scaffold-header-*: TYPO3 13, --typo3-scaffold-header-*: TYPO3 14 */
 .scaffold-header {
     --scaffold-header-bg: var(--be-environment-indicator-colour);
     --scaffold-header-color: #fff;
+    --typo3-scaffold-header-bg: var(--be-environment-indicator-colour);
+    --typo3-scaffold-header-color: #fff;
     color-scheme: only dark;
 }
 .topbar-site-container .be-environment-indicator {
