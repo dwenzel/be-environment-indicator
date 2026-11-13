@@ -11,6 +11,24 @@ The environment is derived from the TYPO3 application context
 (`TYPO3_CONTEXT`). The extension has no database tables and no frontend
 output.
 
+## Screenshots
+
+Production, logged in as admin (TYPO3 14):
+
+![Red top bar with the label PRODUCTION and an orange ADMIN badge](Documentation/Images/topbar-production-admin.png)
+
+Staging, logged in as editor (TYPO3 14):
+
+![Orange top bar with the label STAGING, without ADMIN badge](Documentation/Images/topbar-staging-editor.png)
+
+Development, logged in as admin (TYPO3 14):
+
+![Green top bar with the label DEVELOPMENT and an orange ADMIN badge](Documentation/Images/topbar-development-admin.png)
+
+Production, logged in as admin (TYPO3 12, also TYPO3 11):
+
+![Red top bar in the TYPO3 12 backend with the label PRODUCTION and an orange ADMIN badge](Documentation/Images/topbar-v12-production-admin.png)
+
 ## Requirements
 
 | Version | TYPO3                  | PHP                                  |
